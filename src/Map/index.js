@@ -31,7 +31,7 @@ export const Map = () => {
   const [currentPosition, setCurrentPosition] = useState(
     CANADA_MAP.defaultPosition
   )
-  const [markers, setMarkers] = useState([])
+  const [markers, setMarkers] = useState({})
 
   const handleMoveEnd = (position) => {
     setCurrentPosition(position)
@@ -41,7 +41,7 @@ export const Map = () => {
     setCurrentPosition(activeMap.defaultPosition)
   }
 
-  const handleMapChange = () => {
+  const changeMap = () => {
     if (activeMap.name === CANADA) {
       setCurrentPosition(WORLD_MAP.defaultPosition)
       setActiveMap(WORLD_MAP)
@@ -51,7 +51,7 @@ export const Map = () => {
     }
   }
 
-  const handleAddLocation = async () => {
+  const addLocation = async () => {
     const LocationInput = document.querySelector('._location-input')
     const rawLocation = LocationInput.value
     LocationInput.value = ''
@@ -59,14 +59,30 @@ export const Map = () => {
     const data = await fetchLocationCoordinates(rawLocation)
 
     if (data) {
-      const newMarkers = [
-        ...markers,
-        {
-          name: rawLocation,
-          coordinates: [data.geometry.location.lng, data.geometry.location.lat],
-        },
-      ]
-      setMarkers(newMarkers)
+      console.log('data', data)
+      const locationName = data.formatted_address
+
+      if (!!markers[locationName]) {
+        setMarkers({
+          ...markers,
+          [locationName]: {
+            ...markers[locationName],
+            count: markers[locationName].count + 1,
+          },
+        })
+      } else {
+        setMarkers({
+          ...markers,
+          [locationName]: {
+            name: locationName,
+            count: 1,
+            coordinates: [
+              data.geometry.location.lng,
+              data.geometry.location.lat,
+            ],
+          },
+        })
+      }
     }
   }
 
@@ -86,9 +102,9 @@ export const Map = () => {
           type="text"
           placeholder="Location (ex Vancouver, BC)"
         />
-        <button onClick={handleAddLocation}>Add Location Marker</button>
+        <button onClick={addLocation}>Add Location Marker</button>
         <button onClick={resetMapPosition}>Recenter Position</button>
-        <button onClick={handleMapChange}>
+        <button onClick={changeMap}>
           Use {activeMap.name === CANADA ? WORLD : CANADA} Map
         </button>
       </div>

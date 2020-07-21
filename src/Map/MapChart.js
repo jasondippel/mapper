@@ -15,7 +15,7 @@ const NOOP = () => {}
 const MapChart = ({
   mapData = {},
   currentPosition = {},
-  markers = [],
+  markers = {},
   handleMoveEnd = NOOP,
 }) => (
   <div className="map-container">
@@ -49,9 +49,10 @@ const MapChart = ({
             ))
           }
         </Geographies>
-        {markers.map(({ name, coordinates }) => (
-          <Marker key={name} coordinates={coordinates} />
-        ))}
+        {Object.keys(markers).map((key) => {
+          const { name, coordinates, count } = markers[key]
+          return <Marker key={name} coordinates={coordinates} size={count} />
+        })}
       </ZoomableGroup>
     </ComposableMap>
   </div>
