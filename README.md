@@ -1,5 +1,17 @@
 # Mapper
 
+## Setup
+
+Create `.env` file in root of directory. This file should contain the following:
+
+```
+REACT_APP_GEOCODING_API_KEY=your_here_api_key
+```
+
+where `'your_here_api_key'` is your API key for the [Geocoding API](https://developers.google.com/maps/documentation/geocoding/overview?hl=en_US).
+
+---
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

@@ -1,3 +1,11 @@
-.App {
-  text-align: center;
+.app {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.map-container {
+  width: 70%;
+  background-color: #01202c;
 }
