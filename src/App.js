@@ -4,9 +4,9 @@ import './App.css'
 
 function App() {
   return (
-    <div className="App">
+    <div className="app">
       <h1>Mapper</h1>
-      <p>Display data on a map</p>
+      <p>Display markers on a map</p>
       <Map />
     </div>
   )
