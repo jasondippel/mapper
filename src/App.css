@@ -3,9 +3,16 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin: 1em 2em;
 }
 
 .map-container {
-  width: 70%;
-  background-color: #01202c;
+  max-width: 80vw;
+  width: 800px;
+  height: 400px;
+  max-height: 80vh;
+  overflow: hidden;
+  margin: 2em;
+  border: 2px solid #000;
+  border-radius: 3px;
 }
