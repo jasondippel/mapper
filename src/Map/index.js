@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
-import MapChart from './MapChart'
+import React, { useState, useEffect } from 'react'
+import { MapChart } from './MapChart'
+import { MapControls } from './MapControls'
 import { fetchLocationCoordinates } from './geocoding'
-
 import geoDataWorld from './data/world_countries_topo.json'
 import geoDataCanada from './data/canada_provinces_topo.json'
+
+const YEAR_END = new Date().getFullYear()
 
 const CANADA = 'Canada'
 const CANADA_MAP = {
@@ -15,6 +17,7 @@ const CANADA_MAP = {
   },
   scale: 700,
 }
+
 const WORLD = 'World'
 const WORLD_MAP = {
   name: WORLD,
@@ -26,12 +29,52 @@ const WORLD_MAP = {
   scale: 200,
 }
 
+const filterAndFormatMarkers = (allMarkers, activeFilters) => {
+  let visibleMarkers = {}
+
+  const addToVisibleMarkers = (marker) => {
+    if (!!visibleMarkers[marker.name]) {
+      visibleMarkers[marker.name].count++
+    } else {
+      visibleMarkers[marker.name] = {
+        ...marker,
+        count: 1,
+      }
+    }
+  }
+
+  allMarkers.forEach(({ name, country, date, coordinates }) => {
+    if (activeFilters.location !== WORLD && activeFilters.location !== country)
+      return
+
+    if (date.year === '') {
+      addToVisibleMarkers({ name, date, coordinates })
+    } else if (date.year <= activeFilters.maxYear) {
+      if (date.month === '' || date.month <= activeFilters.maxMonth) {
+        addToVisibleMarkers({ name, date, coordinates })
+      }
+    }
+  })
+
+  return visibleMarkers
+}
+
 export const Map = () => {
   const [activeMap, setActiveMap] = useState(CANADA_MAP)
   const [currentPosition, setCurrentPosition] = useState(
     CANADA_MAP.defaultPosition
   )
-  const [markers, setMarkers] = useState({})
+  const [visibleMarkers, setVisibleMarkers] = useState({})
+  const [markers, setMarkers] = useState([])
+  const [activeFilters, setActiveFilters] = useState({
+    location: CANADA,
+    maxYear: YEAR_END,
+    maxMonth: undefined,
+  })
+
+  useEffect(() => {
+    setVisibleMarkers(filterAndFormatMarkers(markers, activeFilters))
+  }, [markers, activeFilters])
 
   const handleMoveEnd = (position) => {
     setCurrentPosition(position)
@@ -45,46 +88,53 @@ export const Map = () => {
     if (activeMap.name === CANADA) {
       setCurrentPosition(WORLD_MAP.defaultPosition)
       setActiveMap(WORLD_MAP)
+      setActiveFilters({
+        ...activeFilters,
+        location: WORLD,
+      })
     } else {
       setCurrentPosition(CANADA_MAP.defaultPosition)
       setActiveMap(CANADA_MAP)
+      setActiveFilters({
+        ...activeFilters,
+        location: CANADA,
+      })
     }
   }
 
-  const addLocation = async () => {
-    const LocationInput = document.querySelector('._location-input')
-    const rawLocation = LocationInput.value
-    LocationInput.value = ''
+  const addLocation = async ({ location, month, year }) => {
+    if (!location) return
 
-    const data = await fetchLocationCoordinates(rawLocation)
+    const data = await fetchLocationCoordinates(location)
+    console.log('data', data)
 
     if (data) {
-      console.log('data', data)
-      const locationName = data.formatted_address
-
-      if (!!markers[locationName]) {
-        setMarkers({
-          ...markers,
-          [locationName]: {
-            ...markers[locationName],
-            count: markers[locationName].count + 1,
+      const country =
+        data.address_components[data.address_components.length - 1].long_name
+      setMarkers([
+        ...markers,
+        {
+          name: data.formatted_address,
+          country,
+          date: {
+            month,
+            year,
           },
-        })
-      } else {
-        setMarkers({
-          ...markers,
-          [locationName]: {
-            name: locationName,
-            count: 1,
-            coordinates: [
-              data.geometry.location.lng,
-              data.geometry.location.lat,
-            ],
-          },
-        })
-      }
+          coordinates: [data.geometry.location.lng, data.geometry.location.lat],
+        },
+      ])
     }
   }
+
+  const handleFilterChange = (field) => (newValue) => {
+    if (activeFilters[field] === newValue) return
+    setActiveFilters({
+      ...activeFilters,
+      [field]: newValue,
+    })
+  }
+
+  console.log('render', markers, visibleMarkers, activeFilters)
 
   return (
     <React.Fragment>
@@ -92,22 +142,20 @@ export const Map = () => {
         {...{
           mapData: activeMap,
           currentPosition,
-          markers,
+          markers: visibleMarkers,
           handleMoveEnd,
         }}
       />
-      <div className="map-controls">
-        <input
-          className="_location-input"
-          type="text"
-          placeholder="Location (ex Vancouver, BC)"
-        />
-        <button onClick={addLocation}>Add Location Marker</button>
-        <button onClick={resetMapPosition}>Recenter Position</button>
-        <button onClick={changeMap}>
-          Use {activeMap.name === CANADA ? WORLD : CANADA} Map
-        </button>
-      </div>
+      <MapControls
+        {...{
+          activeMap,
+          activeFilters,
+          addLocation,
+          resetMapPosition,
+          changeMap,
+          handleFilterChange, // TODO handle Filter by Year/Month
+        }}
+      />
     </React.Fragment>
   )
 }
