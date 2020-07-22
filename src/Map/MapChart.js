@@ -12,7 +12,7 @@ const LAND_BORDER_COLOR = '#CFD0D0'
 
 const NOOP = () => {}
 
-const MapChart = ({
+export const MapChart = ({
   mapData = {},
   currentPosition = {},
   markers = {},
@@ -49,13 +49,14 @@ const MapChart = ({
             ))
           }
         </Geographies>
-        {Object.keys(markers).map((key) => {
-          const { name, coordinates, count } = markers[key]
-          return <Marker key={name} coordinates={coordinates} size={count} />
-        })}
+        {/* Could render largest markers first, smallest last; Limits chance of markers covering other markers */}
+        {Object.keys(markers)
+          .sort((a, b) => markers[b].count - markers[a].count)
+          .map((key) => {
+            const { name, coordinates, count } = markers[key]
+            return <Marker key={name} coordinates={coordinates} size={count} />
+          })}
       </ZoomableGroup>
     </ComposableMap>
   </div>
 )
-
-export default MapChart
