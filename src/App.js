@@ -11,6 +11,7 @@ import Divider from '@material-ui/core/Divider'
 import Map from './Map'
 import MapFilters from './Map/MapFilters'
 import DataEntry from './DataEntry'
+import DataTable from './DataTable'
 import { fetchLocationCoordinates } from './geocoding'
 import theme from './theme'
 import { WORLD, YEAR_END } from './constants'
@@ -221,6 +222,7 @@ export const App = () => {
         </Drawer>
         <main className={classes.content}>
           <Map {...{ mapData: activeMapData, markers: visibleMarkers }} />
+          <DataTable rawData={markers} />
         </main>
       </div>
     </ThemeProvider>
