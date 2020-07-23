@@ -7,4 +7,17 @@ cache:
     - node_modules
 script:
   - yarn test --watchAll=false
-  - yarn build
+  - REACT_APP_GEOCODING_API_KEY=$GEOCODING_API_KEY yarn build
+before_deploy:
+  - yarn global add travis-ci-cloudfront-invalidation
+deploy:
+  provider: s3
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
+  bucket: $S3_BUCKET
+  skip_cleanup: true
+  local-dir: build
+  on:
+    branch: master
+after_deploy:
+  - travis-ci-cloudfront-invalidation -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY -c $CLOUDFRONT_ID -i '/*' -b $TRAVIS_BRANCH -p $TRAVIS_PULL_REQUEST
