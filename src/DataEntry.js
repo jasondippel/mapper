@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button'
 import FormControl from '@material-ui/core/FormControl'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
+import Modal from '@material-ui/core/Modal'
 import Select from '@material-ui/core/Select'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
@@ -22,11 +23,21 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     minWidth: 100,
   },
-  sectionHeading: {
-    marginBottom: theme.spacing(1),
+  h4: {
+    marginBottom: theme.spacing(2),
+  },
+  paper: {
+    position: 'absolute',
+    width: 400,
+    backgroundColor: theme.palette.grey[900],
+    border: 'none',
+    padding: theme.spacing(2, 4, 3),
   },
   row: {
     display: 'flex',
+  },
+  sectionHeading: {
+    marginBottom: theme.spacing(1),
   },
   selectEmpty: {
     marginTop: theme.spacing(2),
@@ -38,15 +49,33 @@ const useStyles = makeStyles((theme) => ({
   filterTitle: {
     color: theme.palette.text.secondary,
   },
+  fileInput: {
+    marginTop: theme.spacing(2),
+  },
 }))
 
-const DataEntry = ({ addLocation }) => {
+function getModalStyle() {
+  const top = 50
+  const left = 50
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  }
+}
+
+const DataEntry = ({ addLocation, bulkAddLocations }) => {
   const classes = useStyles()
 
+  const [modalStyle] = React.useState(getModalStyle)
+  const [open, setOpen] = React.useState(false)
   const [location, setLocation] = useState('')
   const [month, setMonth] = useState({ value: '', label: '' })
   const [year, setYear] = useState({ value: '', label: '' })
 
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
   const handleLocationUpdate = (event) => setLocation(event.target.value)
   const handleMonthChange = (event) => setMonth(MONTHS[event.target.value])
   const handleYearChange = (event) => setYear(YEARS[event.target.value])
@@ -62,6 +91,43 @@ const DataEntry = ({ addLocation }) => {
     setMonth({ value: '', label: '' })
     setYear({ value: '', label: '' })
   }
+
+  const handleFileUpload = (selectFileEvent) => {
+    const file = selectFileEvent.target.files[0]
+    const reader = new FileReader()
+
+    reader.onload = (fileLoadedEvent) => {
+      var result = JSON.parse(fileLoadedEvent.target.result)
+
+      if (!result.data || !Array.isArray(result.data))
+        return notifyBadFileUpload()
+
+      bulkAddLocations(result.data)
+    }
+
+    reader.readAsText(file)
+    handleClose()
+  }
+
+  const notifyBadFileUpload = () =>
+    alert('File upload failed. Please ensure data is formatted correctly.')
+
+  const modalBody = (
+    <div style={modalStyle} className={classes.paper}>
+      <Typography variant="h4" className={classes.h4}>
+        File Upload
+      </Typography>
+      <Typography variant="paragraph">Select a .json file to upload</Typography>
+      <div className={classes.Row}>
+        <input
+          className={classes.fileInput}
+          type="file"
+          accept="application/json"
+          onChange={handleFileUpload}
+        />
+      </div>
+    </div>
+  )
 
   return (
     <React.Fragment>
@@ -107,10 +173,18 @@ const DataEntry = ({ addLocation }) => {
         >
           Add Mark
         </Button>
-        <Button className={classes.button} size="small" color="primary">
-          Upload .csv
+        <Button className={classes.button} size="small" onClick={handleOpen}>
+          Upload .json
         </Button>
       </div>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+      >
+        {modalBody}
+      </Modal>
     </React.Fragment>
   )
 }

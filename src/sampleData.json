@@ -1,0 +1,39 @@
+{
+  "data": [
+    {
+      "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2020
+    },
+    {
+      "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2019
+    },
+    {
+      "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2018
+    },
+    {
+      "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2017
+    },
+    {
+      "location": "Toronton, ON",
+      "month": 0,
+      "year": 2018
+    },
+    {
+      "location": "Calgary, AB",
+      "month": 0,
+      "year": 2020
+    },
+    {
+      "location": "Ottawa, ON",
+      "month": 0,
+      "year": 2020
+    }
+  ]
+}

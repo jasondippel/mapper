@@ -29,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
   drawer: {
     width: DRAWER_WIDTH,
     flexShrink: 0,
-    backgroundColor: theme.palette.background.default,
   },
   drawerPaper: {
     width: DRAWER_WIDTH,
@@ -50,6 +49,12 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(7),
   },
 }))
+
+const asyncForEach = async (array, callback) => {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array)
+  }
+}
 
 const filterAndFormatMarkers = (allMarkers, activeFilters) => {
   let visibleMarkers = {}
@@ -93,6 +98,7 @@ export const App = () => {
   const [activeFilters, setActiveFilters] = useState({
     activeMap: DEFAULT_MAP,
     maxYear: YEAR_END,
+    maxMonth: 11,
   })
   const [markers, setMarkers] = useState([])
   const [visibleMarkers, setVisibleMarkers] = useState({})
@@ -124,7 +130,7 @@ export const App = () => {
     if (!location) return
 
     const data = await fetchLocationCoordinates(location)
-    if (data) {
+    if (!!data) {
       const country =
         data.address_components[data.address_components.length - 1].long_name
       setMarkers([
@@ -140,6 +146,29 @@ export const App = () => {
         },
       ])
     }
+  }
+
+  const bulkAddLocations = async (locations) => {
+    // TODO: this should be done better, but I'm too tired to figure it out right now...
+    const formattedLocations = []
+    await asyncForEach(locations, async ({ location, month, year }) => {
+      const data = await fetchLocationCoordinates(location)
+      if (!!data) {
+        const country =
+          data.address_components[data.address_components.length - 1].long_name
+        formattedLocations.push({
+          name: data.formatted_address,
+          country,
+          date: {
+            month,
+            year,
+          },
+          coordinates: [data.geometry.location.lng, data.geometry.location.lat],
+        })
+      }
+    })
+
+    setMarkers([...markers, ...formattedLocations])
   }
 
   return (
@@ -182,7 +211,7 @@ export const App = () => {
             </div>
             <Divider />
             <div className={classes.drawerSection}>
-              <DataEntry {...{ addLocation }} />
+              <DataEntry {...{ addLocation, bulkAddLocations }} />
             </div>
           </div>
         </Drawer>
