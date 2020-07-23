@@ -171,6 +171,8 @@ export const App = () => {
     setMarkers([...markers, ...formattedLocations])
   }
 
+  const clearAllLocations = () => setMarkers([])
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -211,7 +213,9 @@ export const App = () => {
             </div>
             <Divider />
             <div className={classes.drawerSection}>
-              <DataEntry {...{ addLocation, bulkAddLocations }} />
+              <DataEntry
+                {...{ addLocation, bulkAddLocations, clearAllLocations }}
+              />
             </div>
           </div>
         </Drawer>

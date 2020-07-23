@@ -1,9 +1,19 @@
 {
   "data": [
     {
+      "location": "Richmond, BC",
+      "month": 0,
+      "year": 2016
+    },
+    {
       "location": "Vancouver, BC",
       "month": 0,
-      "year": 2020
+      "year": 2010
+    },
+    {
+      "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2018
     },
     {
       "location": "Vancouver, BC",
@@ -13,25 +23,70 @@
     {
       "location": "Vancouver, BC",
       "month": 0,
-      "year": 2018
+      "year": 2019
     },
     {
       "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2019
+    },
+    {
+      "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2020
+    },
+    {
+      "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2020
+    },
+    {
+      "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2020
+    },
+    {
+      "location": "Vancouver, BC",
+      "month": 0,
+      "year": 2020
+    },
+    {
+      "location": "Toronton, ON",
+      "month": 0,
+      "year": 2015
+    },
+    {
+      "location": "Toronton, ON",
       "month": 0,
       "year": 2017
     },
     {
       "location": "Toronton, ON",
       "month": 0,
-      "year": 2018
+      "year": 2020
+    },
+    {
+      "location": "Kitchener, ON",
+      "month": 0,
+      "year": 2017
+    },
+    {
+      "location": "Waterloo, ON",
+      "month": 0,
+      "year": 2019
     },
     {
       "location": "Calgary, AB",
       "month": 0,
-      "year": 2020
+      "year": 2012
     },
     {
       "location": "Ottawa, ON",
+      "month": 0,
+      "year": 2020
+    },
+    {
+      "location": "St Johns, NL",
       "month": 0,
       "year": 2020
     }

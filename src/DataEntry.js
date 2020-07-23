@@ -17,6 +17,10 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
     marginTop: theme.spacing(2),
   },
+  buttonBottom: {
+    width: '80%',
+    margin: theme.spacing(2),
+  },
   formControl: {
     marginRight: theme.spacing(2),
     marginBottom: theme.spacing(4),
@@ -35,6 +39,14 @@ const useStyles = makeStyles((theme) => ({
   },
   row: {
     display: 'flex',
+  },
+  rowBottomCentered: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    display: 'flex',
+    justifyContent: 'space-around',
+    width: '100%',
   },
   sectionHeading: {
     marginBottom: theme.spacing(1),
@@ -65,7 +77,7 @@ function getModalStyle() {
   }
 }
 
-const DataEntry = ({ addLocation, bulkAddLocations }) => {
+const DataEntry = ({ addLocation, bulkAddLocations, clearAllLocations }) => {
   const classes = useStyles()
 
   const [modalStyle] = React.useState(getModalStyle)
@@ -79,6 +91,7 @@ const DataEntry = ({ addLocation, bulkAddLocations }) => {
   const handleLocationUpdate = (event) => setLocation(event.target.value)
   const handleMonthChange = (event) => setMonth(MONTHS[event.target.value])
   const handleYearChange = (event) => setYear(YEARS[event.target.value])
+  const handleClearAllLocations = () => clearAllLocations()
 
   const handleAddLocation = () => {
     addLocation({
@@ -175,6 +188,16 @@ const DataEntry = ({ addLocation, bulkAddLocations }) => {
         </Button>
         <Button className={classes.button} size="small" onClick={handleOpen}>
           Upload .json
+        </Button>
+      </div>
+      <div className={classes.rowBottomCentered}>
+        <Button
+          className={classes.buttonBottom}
+          variant="outlined"
+          color="secondary"
+          onClick={handleClearAllLocations}
+        >
+          Clear All Data
         </Button>
       </div>
       <Modal
