@@ -16,7 +16,7 @@ export const WORLD_MAP = {
   name: WORLD,
   geoData: geoDataWorld,
   defaultPosition: {
-    coordinates: [0, -5],
+    coordinates: [5, -9],
     zoom: 1,
   },
   scale: 200,
