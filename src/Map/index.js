@@ -1,161 +1,127 @@
-import React, { useState, useEffect } from 'react'
-import { MapChart } from './MapChart'
-import { MapControls } from './MapControls'
-import { fetchLocationCoordinates } from './geocoding'
-import geoDataWorld from './data/world_countries_topo.json'
-import geoDataCanada from './data/canada_provinces_topo.json'
+import React, { useState, useEffect, useRef } from 'react'
+import styled from 'styled-components'
+import {
+  ComposableMap,
+  Geographies,
+  Geography,
+  ZoomableGroup,
+} from 'react-simple-maps'
+import { makeStyles } from '@material-ui/core/styles'
+import Button from '@material-ui/core/Button'
+import { Marker } from './Marker'
 
-const YEAR_END = new Date().getFullYear()
+const LAND_COLOR = '#00141B'
+const LAND_BORDER_COLOR = '#CFD0D0'
 
-const CANADA = 'Canada'
-const CANADA_MAP = {
-  name: CANADA,
-  geoData: geoDataCanada,
-  defaultPosition: {
-    coordinates: [-87, 49],
-    zoom: 1,
+const MapRoot = styled.div`
+  display: flex;
+  position: relative;
+`
+
+const MapContainer = styled.div`
+  flex: 1;
+  max-height: 80vh;
+  min-height: 300px;
+  overflow: hidden;
+  border: 2px solid #000;
+  border-radius: 3px;
+`
+
+const MapPositionControls = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
+const useStyles = makeStyles((theme) => ({
+  button: {
+    margin: theme.spacing(1),
+    position: 'absolute',
+    right: '0',
+    bottom: '0',
   },
-  scale: 700,
-}
+}))
 
-const WORLD = 'World'
-const WORLD_MAP = {
-  name: WORLD,
-  geoData: geoDataWorld,
-  defaultPosition: {
-    coordinates: [0, -5],
-    zoom: 1,
-  },
-  scale: 200,
-}
+const Map = ({ mapData = {}, markers = {} }) => {
+  const classes = useStyles()
 
-const filterAndFormatMarkers = (allMarkers, activeFilters) => {
-  let visibleMarkers = {}
-
-  const addToVisibleMarkers = (marker) => {
-    if (!!visibleMarkers[marker.name]) {
-      visibleMarkers[marker.name].count++
-    } else {
-      visibleMarkers[marker.name] = {
-        ...marker,
-        count: 1,
-      }
-    }
-  }
-
-  allMarkers.forEach(({ name, country, date, coordinates }) => {
-    if (activeFilters.location !== WORLD && activeFilters.location !== country)
-      return
-
-    if (date.year === '') {
-      addToVisibleMarkers({ name, date, coordinates })
-    } else if (date.year <= activeFilters.maxYear) {
-      if (date.month === '' || date.month <= activeFilters.maxMonth) {
-        addToVisibleMarkers({ name, date, coordinates })
-      }
-    }
-  })
-
-  return visibleMarkers
-}
-
-export const Map = () => {
-  const [activeMap, setActiveMap] = useState(CANADA_MAP)
   const [currentPosition, setCurrentPosition] = useState(
-    CANADA_MAP.defaultPosition
+    mapData.defaultPosition
   )
-  const [visibleMarkers, setVisibleMarkers] = useState({})
-  const [markers, setMarkers] = useState([])
-  const [activeFilters, setActiveFilters] = useState({
-    location: CANADA,
-    maxYear: YEAR_END,
-    maxMonth: undefined,
-  })
-
-  useEffect(() => {
-    setVisibleMarkers(filterAndFormatMarkers(markers, activeFilters))
-  }, [markers, activeFilters])
 
   const handleMoveEnd = (position) => {
     setCurrentPosition(position)
   }
 
   const resetMapPosition = () => {
-    setCurrentPosition(activeMap.defaultPosition)
+    setCurrentPosition(mapData.defaultPosition)
   }
 
-  const changeMap = () => {
-    if (activeMap.name === CANADA) {
-      setCurrentPosition(WORLD_MAP.defaultPosition)
-      setActiveMap(WORLD_MAP)
-      setActiveFilters({
-        ...activeFilters,
-        location: WORLD,
-      })
-    } else {
-      setCurrentPosition(CANADA_MAP.defaultPosition)
-      setActiveMap(CANADA_MAP)
-      setActiveFilters({
-        ...activeFilters,
-        location: CANADA,
-      })
-    }
-  }
-
-  const addLocation = async ({ location, month, year }) => {
-    if (!location) return
-
-    const data = await fetchLocationCoordinates(location)
-    console.log('data', data)
-
-    if (data) {
-      const country =
-        data.address_components[data.address_components.length - 1].long_name
-      setMarkers([
-        ...markers,
-        {
-          name: data.formatted_address,
-          country,
-          date: {
-            month,
-            year,
-          },
-          coordinates: [data.geometry.location.lng, data.geometry.location.lat],
-        },
-      ])
-    }
-  }
-
-  const handleFilterChange = (field) => (newValue) => {
-    if (activeFilters[field] === newValue) return
-    setActiveFilters({
-      ...activeFilters,
-      [field]: newValue,
-    })
-  }
-
-  console.log('render', markers, visibleMarkers, activeFilters)
+  // mimic componentDidUpdate
+  const didMountRef = useRef(false)
+  useEffect(() => {
+    if (didMountRef.current) {
+      setCurrentPosition(mapData.defaultPosition)
+    } else didMountRef.current = true
+  }, [mapData, setCurrentPosition])
 
   return (
-    <React.Fragment>
-      <MapChart
-        {...{
-          mapData: activeMap,
-          currentPosition,
-          markers: visibleMarkers,
-          handleMoveEnd,
-        }}
-      />
-      <MapControls
-        {...{
-          activeMap,
-          activeFilters,
-          addLocation,
-          resetMapPosition,
-          changeMap,
-          handleFilterChange, // TODO handle Filter by Year/Month
-        }}
-      />
-    </React.Fragment>
+    <MapRoot>
+      <MapContainer>
+        <ComposableMap projectionConfig={{ scale: mapData.scale }}>
+          <ZoomableGroup
+            zoom={currentPosition.zoom}
+            center={currentPosition.coordinates}
+            onMoveEnd={handleMoveEnd}
+          >
+            <Geographies geography={mapData.geoData}>
+              {({ geographies }) =>
+                geographies.map((geo) => (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    style={{
+                      default: {
+                        fill: LAND_COLOR,
+                        outline: 'none',
+                        stroke: LAND_BORDER_COLOR,
+                        strokeWidth: '0.4px',
+                      },
+                      hover: {
+                        fill: LAND_COLOR,
+                        outline: 'none',
+                        stroke: LAND_BORDER_COLOR,
+                        strokeWidth: '1.2px',
+                      },
+                    }}
+                  />
+                ))
+              }
+            </Geographies>
+            {/* Could render largest markers first, smallest last; Limits chance of markers covering other markers */}
+            {Object.keys(markers)
+              .sort((a, b) => markers[b].count - markers[a].count)
+              .map((key) => {
+                const { name, coordinates, count } = markers[key]
+                return (
+                  <Marker key={name} coordinates={coordinates} size={count} />
+                )
+              })}
+          </ZoomableGroup>
+        </ComposableMap>
+      </MapContainer>
+      <MapPositionControls>
+        <Button
+          className={classes.button}
+          variant="contained"
+          color="secondary"
+          size="small"
+          onClick={resetMapPosition}
+        >
+          Re-Center Map
+        </Button>
+      </MapPositionControls>
+    </MapRoot>
   )
 }
+
+export default Map
