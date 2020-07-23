@@ -184,7 +184,7 @@ const DataTable = ({ rawData = [] }) => {
                         {row.name}
                       </TableCell>
                       <TableCell align="left">
-                        {!!row.month ? MONTHS[row.month].label : 'n/a'}
+                        {!!MONTHS[row.month] ? MONTHS[row.month].label : 'n/a'}
                       </TableCell>
                       <TableCell align="left">
                         {!!row.year ? row.year : 'n/a'}
