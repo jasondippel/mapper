@@ -18,8 +18,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
   buttonBottom: {
-    width: '80%',
-    margin: theme.spacing(2),
+    width: '100%',
+    margin: theme.spacing(1, 0),
   },
   formControl: {
     marginRight: theme.spacing(2),
@@ -41,9 +41,6 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
   },
   rowBottomCentered: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
     display: 'flex',
     justifyContent: 'space-around',
     width: '100%',

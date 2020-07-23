@@ -12,7 +12,8 @@ import Map from './Map'
 import MapFilters from './Map/MapFilters'
 import DataEntry from './DataEntry'
 import DataTable from './DataTable'
-import { fetchLocationCoordinates } from './geocoding'
+import ApiKey from './Api/ApiKey'
+import geocodingApi from './Api/geocodingApi'
 import theme from './theme'
 import { WORLD, YEAR_END } from './constants'
 import { MAPS } from './Map/data'
@@ -130,7 +131,7 @@ export const App = () => {
   const addLocation = async ({ location, month, year }) => {
     if (!location) return
 
-    const data = await fetchLocationCoordinates(location)
+    const data = await geocodingApi.fetchLocationCoordinates(location)
     if (!!data) {
       const country =
         data.address_components[data.address_components.length - 1].long_name
@@ -153,7 +154,7 @@ export const App = () => {
     // TODO: this should be done better, but I'm too tired to figure it out right now...
     const formattedLocations = []
     await asyncForEach(locations, async ({ location, month, year }) => {
-      const data = await fetchLocationCoordinates(location)
+      const data = await geocodingApi.fetchLocationCoordinates(location)
       if (!!data) {
         const country =
           data.address_components[data.address_components.length - 1].long_name
@@ -196,10 +197,11 @@ export const App = () => {
           <Toolbar />
           <div className={classes.drawerContainer}>
             <div className={classes.drawerSection}>
-              <Typography>
+              <Typography variant="paragraph">
                 Display data points on a map and visualize how the data changes
                 over time.
               </Typography>
+              <ApiKey />
             </div>
             <Divider />
             <div className={classes.drawerSection}>
