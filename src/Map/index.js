@@ -10,7 +10,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import { Marker } from './Marker'
 
-const LAND_COLOR = '#00141B'
+const LAND_COLOR = '#000'
 const LAND_BORDER_COLOR = '#CFD0D0'
 
 const MapRoot = styled.div`
@@ -24,7 +24,6 @@ const MapContainer = styled.div`
   min-height: 300px;
   overflow: hidden;
   border: 2px solid #000;
-  border-radius: 3px;
 `
 
 const MapPositionControls = styled.div`
