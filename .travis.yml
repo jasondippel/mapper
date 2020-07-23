@@ -7,7 +7,7 @@ cache:
     - node_modules
 script:
   - yarn test --watchAll=false
-  - REACT_APP_GEOCODING_API_KEY=$GEOCODING_API_KEY yarn build
+  - yarn build
 before_deploy:
   - yarn global add travis-ci-cloudfront-invalidation
 deploy:
