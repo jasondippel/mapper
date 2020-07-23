@@ -126,7 +126,6 @@ const DataTable = ({ rawData = [] }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5)
 
   const rows = rawData.map((item) => formatData(item))
-  console.log('rows', rows, rawData)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
